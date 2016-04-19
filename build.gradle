@@ -14,6 +14,7 @@ sourceCompatibility = 1.8
 
 repositories {
   mavenCentral()
+  jcenter()
 }
 
 jar {
@@ -33,6 +34,12 @@ dependencies {
   compile 'com.mashape.unirest:unirest-java:1.4.9'
   compile 'org.mongodb:mongodb-driver:3.2.2'
   compile 'org.twitter4j:twitter4j-core:4.0.4'
+  compile 'org.apache.httpcomponents:httpclient:4.5.2'
+  compile 'com.google.http-client:google-http-client:1.21.0'
+  compile 'com.google.api-client:google-api-client-appengine:1.21.0'
+  compile 'com.google.appengine:appengine-api-1.0-sdk:1.9.34'
+  compile 'net.dean.jraw:JRAW:0.8.0'
+
 
   testCompile group: 'junit', name: 'junit', version: '4.11'
 }
@@ -53,6 +60,11 @@ task acquireTwitter(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
 
   main = 'edu.csula.datascience.acquisition.TwitterCollectorApp'
+}
+
+task oAuth(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'edu.csula.datascience.r.auth.RedditOAuth'
 }
 
 task wrapper(type: Wrapper) {
