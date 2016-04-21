@@ -25,10 +25,8 @@ public class RedditOAuth {
     return envMap;
   }
 
-  public RedditClient authenticate(){
+  public void authenticate(RedditClient redditClient){
     Map<String, String> envMap = getVariables();
-    UserAgent myUserAgent = UserAgent.of("desktop", "awesomescript", "v0.1", "victorious-secret");
-    RedditClient redditClient = new RedditClient(myUserAgent);
     Credentials credentials = Credentials.script(envMap.get(USERNAME), envMap.get(PASSWORD),
         envMap.get(APP_ID), envMap.get(APP_SECRET));
     try{
@@ -36,15 +34,8 @@ public class RedditOAuth {
       redditClient.authenticate(authData);
     }
     catch(OAuthException ex){
+      System.err.println("Unable to authenticate the reddit client");
       ex.printStackTrace();
     }
-    return redditClient;
-  }
-
-  public static void main(String[] args) throws Exception{
-    RedditOAuth auth = new RedditOAuth();
-    RedditClient redditClient = auth.authenticate();
-    System.out.println(redditClient.me());
-    System.out.println(redditClient.getOAuthData());
   }
 }
