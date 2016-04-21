@@ -18,6 +18,11 @@ public class RedditOAuth {
 
   private Map getVariables(){
     Map<String, String> envMap = new HashMap<>(4);
+    if(System.getenv(USERNAME) == null){
+      System.err.println("Could not find environment variables. Did you source the environment?");
+      System.err.println("source <filename>.env");
+      System.exit(1);
+    }
     envMap.put(USERNAME, System.getenv(USERNAME));
     envMap.put(PASSWORD, System.getenv(PASSWORD));
     envMap.put(APP_ID, System.getenv(APP_ID));
