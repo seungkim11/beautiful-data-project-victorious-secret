@@ -2,11 +2,16 @@ package edu.csula.datascience.r.acquisition;
 
 import edu.csula.datascience.acquisition.Source;
 import edu.csula.datascience.r.auth.RedditOAuth;
+import edu.csula.datascience.r.dto.Post;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.UserAgent;
+import net.dean.jraw.models.Listing;
+import net.dean.jraw.models.Submission;
+import net.dean.jraw.paginators.SubredditPaginator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -24,7 +29,7 @@ public class RedditSource implements Source<Post> {
     showerthoughts, explainlikeimfive, askreddit, jokes, askscience, an
      */
     // FIXME: eventually, we should get a list containeing what subreddits to use as source
-    this(new Arrays.asList("askreddit"));
+    this(Arrays.asList("news"));
   }
 
   public RedditSource(List<String> subreddits){
@@ -38,16 +43,18 @@ public class RedditSource implements Source<Post> {
 
   public Collection<Post> next(){
     // FIXME
-    return null;
+    Collection<Post> result = new ArrayList<>();
+    return result;
   }
 
   public void remove(){
     // FIXME
   }
 
-  private List<Post> getPosts(){
+  // FIXME should be private
+  public List<Submission> downloadSubmissions(){
     // posts for which subreddit?
-    List<Post> posts = new ArrayList<>();
+    List<Submission> submissions = new ArrayList<>();
     UserAgent myUserAgent = UserAgent.of("desktop", "awesomescript", "v0.1", "victorious-secret");
     RedditClient redditClient = new RedditClient(myUserAgent);
     if(!redditClient.isAuthenticated()){
@@ -55,6 +62,21 @@ public class RedditSource implements Source<Post> {
       auth.authenticate(redditClient);
     }
 
+    for(String subreddit : subreddits){
+      SubredditPaginator paginator = new SubredditPaginator(redditClient, subreddit);
+      paginator.setLimit(1);
+      List<Listing<Submission>> listings = paginator.accumulate(1000);
+      System.out.println(listings.size());
+      for(Listing<Submission> listing : listings){
+        int count = 0;
+        for(Submission submission : listing){
+          System.out.println(submission);
+          count++;
+        }
+        System.out.printf("list had %d submissions%n", count);
+      }
 
+    }
+    return null;
   }
 }

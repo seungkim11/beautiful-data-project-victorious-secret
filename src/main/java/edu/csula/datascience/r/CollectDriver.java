@@ -1,5 +1,6 @@
 package edu.csula.datascience.r;
 
+import edu.csula.datascience.r.acquisition.RedditSource;
 import edu.csula.datascience.r.auth.RedditOAuth;
 import net.dean.jraw.RedditClient;
 
@@ -8,6 +9,7 @@ import net.dean.jraw.RedditClient;
  */
 public class CollectDriver {
   public static void main(String[] args) throws Exception{
-    RedditOAuth auth = new RedditOAuth();
+    RedditSource source = new RedditSource();
+    source.downloadSubmissions();
   }
 }

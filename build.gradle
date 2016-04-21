@@ -62,9 +62,9 @@ task acquireTwitter(type: JavaExec) {
   main = 'edu.csula.datascience.acquisition.TwitterCollectorApp'
 }
 
-task oAuth(type: JavaExec) {
+task collect(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
-  main = 'edu.csula.datascience.r.auth.RedditOAuth'
+  main = 'edu.csula.datascience.r.CollectDriver'
 }
 
 task wrapper(type: Wrapper) {
