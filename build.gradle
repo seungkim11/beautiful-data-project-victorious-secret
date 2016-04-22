@@ -67,6 +67,11 @@ task collect(type: JavaExec) {
   main = 'edu.csula.datascience.r.CollectDriver'
 }
 
+task submit(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'edu.csula.datascience.r.SubmissionDriver'
+}
+
 task comments(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     main = 'edu.csula.datascience.r.CommentApp'
