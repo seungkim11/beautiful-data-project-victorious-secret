@@ -2,79 +2,118 @@ package edu.csula.datascience.r.acquisition;
 
 import edu.csula.datascience.acquisition.Source;
 import edu.csula.datascience.r.auth.RedditOAuth;
-import net.dean.jraw.RedditClient;
-import net.dean.jraw.http.UserAgent;
-import net.dean.jraw.models.Comment;
-import net.dean.jraw.models.CommentNode;
-import net.dean.jraw.models.Listing;
-import net.dean.jraw.models.Submission;
-import net.dean.jraw.paginators.CommentStream;
-import net.dean.jraw.paginators.SubredditPaginator;
+import edu.csula.datascience.r.auth.RedditOAuthHttp;
+import edu.csula.datascience.r.models.Comment;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
- * Created by tj on 4/21/16.
+ * Created by samskim on 4/21/16.
  */
-public class CommentSource implements Source<CommentNode> {
+public class CommentSource implements Source<JSONObject> {
 
-  private RedditClient redditClient;
-  private List<Submission> submissions;
+    private String subreddit;
+    private String postId;
+    private String token;
+    private RedditOAuthHttp oAuth;
 
-  public CommentSource(List<Submission> submissions){
-    UserAgent myUserAgent = UserAgent.of("desktop", "awesomescript", "v0.1", "victorious-secret");
-    redditClient = new RedditClient(myUserAgent);
-    this.submissions = submissions;
-  }
 
-  public boolean hasNext(){
-    // FIXME
-    return false;
-  }
+    public CommentSource(){
 
-  public Collection<CommentNode> next(){
-    // FIXME
-    Collection<CommentNode> result = new ArrayList<>();
-    return result;
-  }
-
-  public void remove(){
-    // FIXME
-  }
-
-  public List<Comment> downloadComments(String subreddit){
-    int limit = 1000;
-    if(!redditClient.isAuthenticated()){
-      RedditOAuth auth = new RedditOAuth();
-      auth.authenticate(redditClient);
+        authenticate();
     }
-    CommentStream cs = new CommentStream(redditClient, subreddit);
-    cs.setLimit(limit);
-    List<Comment> comments = new ArrayList<>();
-    System.out.printf("downloading comments for %s", subreddit);
-    while(cs.hasNext()){
-      // FIXME move intialization outside of loop
-      List<Comment> temp = cs.next();
-      System.out.printf("next retrieved %d records%n", temp.size());
-      comments.addAll(temp);
-    }
-    System.out.printf("total comments retrieved %d %n", comments.size());
-    return comments;
-  }
 
-  public CommentNode downloadComments(Submission submission){
-    if(!redditClient.isAuthenticated()){
-      RedditOAuth auth = new RedditOAuth();
-      auth.authenticate(redditClient);
+    public void authenticate(){
+        oAuth = new RedditOAuthHttp();
+        oAuth.getEnvKeys();
+        String token = oAuth.getToken();
+        if (!token.trim().isEmpty()) {
+            System.out.println("Token successfully retrieved");
+            this.token = token;
+        }else{
+            System.out.println("Failed to retrieve token");
+            System.exit(1);
+        }
     }
-    CommentNode rootNode = submission.getComments();
-//    Iterable<CommentNode> iterable = rootNode.walkTree();
-//    for (CommentNode node : iterable) {
-//      comments.add(node);
-//    }
-    return rootNode;
-  }
+
+    public void setSubreddit(String subreddit){
+        this.subreddit = subreddit;
+    }
+
+    public void setPostId(String postId){
+        this.postId = postId;
+    }
+
+    @Override
+    public boolean hasNext() {
+        return false;
+    }
+
+    @Override
+    public Collection<JSONObject> next() {
+
+        return null;
+    }
+
+    // FIXME
+    public void download(){
+        String url = "https://oauth.reddit.com/r/" + subreddit + "/comments/" + postId + ".json?limit=500";
+
+        String requestMethod = "GET";
+        try {
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod(requestMethod);
+
+            con.setRequestProperty("Authorization", "bearer " + token);
+            con.setRequestProperty("User-Agent", "github:csula-students/beautiful-data-project-victorious-secret v1.0 by /u/" + oAuth.getUsername());
+            int responseCode = con.getResponseCode();
+            System.out.println("\nSending '" + requestMethod + "' request to URL : " + url);
+            System.out.println("Response Code: " + responseCode);
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+
+            String inputLine;
+            StringBuffer response = new StringBuffer();
+
+            while ((inputLine = in.readLine()) != null){
+                response.append(inputLine);
+            }
+            in.close();
+
+            System.out.println(response.toString());
+
+            List<JSONObject> commentList = new ArrayList<>();
+
+            JSONArray rootblob = new JSONArray(response.toString());
+
+            // first object in the array is submission post itself
+            // second object in the array is the comments
+            JSONObject commentObject = rootblob.getJSONObject(1);
+            JSONObject data = (JSONObject) commentObject.get("data");
+
+            // here are all root comments in the submission
+            JSONArray comments = (JSONArray) data.get("children");
+
+            for (Object commentObj: comments) {
+                JSONObject commentNode = (JSONObject) commentObj;
+                commentList.add(commentNode);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }

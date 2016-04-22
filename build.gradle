@@ -67,6 +67,11 @@ task collect(type: JavaExec) {
   main = 'edu.csula.datascience.r.CollectDriver'
 }
 
+task comments(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'edu.csula.datascience.r.CommentApp'
+}
+
 task wrapper(type: Wrapper) {
   gradleVersion = '2.0'
 }
