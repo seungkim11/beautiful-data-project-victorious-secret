@@ -33,7 +33,7 @@ public class SubmissionSource implements Source<Submission> {
     this.subreddits = subreddits;
     UserAgent myUserAgent = UserAgent.of("desktop", "awesomescript", "v0.1", "victorious-secret");
     redditClient = new RedditClient(myUserAgent);
-    step = 8;
+    step = 1;
     index = 0;
   }
 
