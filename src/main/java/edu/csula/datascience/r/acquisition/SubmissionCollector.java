@@ -71,8 +71,8 @@ public class SubmissionCollector implements Collector<Post, Submission> {
   public void save(Collection<Post> data) {
     System.out.println("saving data");
     connectDatabase();
-    List<Document> docs = new ArrayList<>();
-    data.stream()
+    List<Document> docs;
+    docs = data.stream()
             .map(post -> createDocument(post))
             .collect(Collectors.toList());
     String collection = readCollectionVariable();
