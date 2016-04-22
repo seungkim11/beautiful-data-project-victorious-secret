@@ -12,6 +12,7 @@ import net.dean.jraw.models.Submission;
 import org.bson.Document;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -70,9 +71,9 @@ public class SubmissionCollector implements Collector<Post, Submission> {
     System.out.println("saving data");
     String dbName = connectDatabase();
     List<Document> docs = new ArrayList<>();
-    for(Post post : data){
-      docs.add(createDocument(post));
-    }
+    data.stream()
+            .map(post -> createDocument(post))
+            .collect(Collectors.toList());
     insertMany(docs, dbName);
     closeDatabase();
   }
