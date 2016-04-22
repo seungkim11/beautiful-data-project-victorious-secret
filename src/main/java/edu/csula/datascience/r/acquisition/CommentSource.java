@@ -2,9 +2,9 @@ package edu.csula.datascience.r.acquisition;
 
 import edu.csula.datascience.acquisition.Source;
 import edu.csula.datascience.r.auth.RedditOAuth;
-import edu.csula.datascience.r.dto.Post;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.UserAgent;
+import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.SubredditPaginator;
@@ -17,11 +17,12 @@ import java.util.List;
 /**
  * Created by tj on 4/21/16.
  */
-public class RedditSource implements Source<Post> {
+public class CommentSource implements Source<Submission> {
 
   private final List<String> subreddits;
+  private RedditClient redditClient;
 
-  public RedditSource(){
+  public CommentSource(){
     /*
     TODO:
     perhaps each source should correspond to a subreddit? or subset of subreddit
@@ -29,11 +30,13 @@ public class RedditSource implements Source<Post> {
     showerthoughts, explainlikeimfive, askreddit, jokes, askscience, an
      */
     // FIXME: eventually, we should get a list containeing what subreddits to use as source
-    this(Arrays.asList("news"));
+    this(Arrays.asList("showerthoughts"));
   }
 
-  public RedditSource(List<String> subreddits){
+  public CommentSource(List<String> subreddits){
     this.subreddits = subreddits;
+    UserAgent myUserAgent = UserAgent.of("desktop", "awesomescript", "v0.1", "victorious-secret");
+    redditClient = new RedditClient(myUserAgent);
   }
 
   public boolean hasNext(){
@@ -41,9 +44,9 @@ public class RedditSource implements Source<Post> {
     return false;
   }
 
-  public Collection<Post> next(){
+  public Collection<Submission> next(){
     // FIXME
-    Collection<Post> result = new ArrayList<>();
+    Collection<Submission> result = new ArrayList<>();
     return result;
   }
 
@@ -53,30 +56,36 @@ public class RedditSource implements Source<Post> {
 
   // FIXME should be private
   public List<Submission> downloadSubmissions(){
-    // posts for which subreddit?
-    List<Submission> submissions = new ArrayList<>();
-    UserAgent myUserAgent = UserAgent.of("desktop", "awesomescript", "v0.1", "victorious-secret");
-    RedditClient redditClient = new RedditClient(myUserAgent);
+    int maxPostsPerPage = 100;
+    int maxPages = 10;
+
     if(!redditClient.isAuthenticated()){
       RedditOAuth auth = new RedditOAuth();
       auth.authenticate(redditClient);
     }
 
+    List<Submission> submissions = new ArrayList<>();
     for(String subreddit : subreddits){
       SubredditPaginator paginator = new SubredditPaginator(redditClient, subreddit);
-      paginator.setLimit(1);
-      List<Listing<Submission>> listings = paginator.accumulate(1000);
-      System.out.println(listings.size());
+      paginator.setLimit(maxPostsPerPage);
+      List<Listing<Submission>> listings = paginator.accumulate(maxPages);
       for(Listing<Submission> listing : listings){
-        int count = 0;
-        for(Submission submission : listing){
-          System.out.println(submission);
-          count++;
-        }
-        System.out.printf("list had %d submissions%n", count);
+        submissions.addAll(listing);
       }
-
     }
-    return null;
+    return submissions;
+  }
+
+  public CommentNode downloadComments(Submission submission){
+    if(!redditClient.isAuthenticated()){
+      RedditOAuth auth = new RedditOAuth();
+      auth.authenticate(redditClient);
+    }
+    CommentNode rootNode = submission.getComments();
+//    Iterable<CommentNode> iterable = rootNode.walkTree();
+//    for (CommentNode node : iterable) {
+//      comments.add(node);
+//    }
+    return rootNode;
   }
 }
