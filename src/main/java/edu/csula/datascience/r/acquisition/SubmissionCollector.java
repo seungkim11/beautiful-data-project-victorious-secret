@@ -19,11 +19,12 @@ import java.util.stream.Collectors;
  * Created by tj on 4/21/16.
  */
 public class SubmissionCollector implements Collector<Post, Submission> {
+
   private final String USERNAME = "MONGO_USERNAME";
   private final String PASSWORD = "MONGO_PASSWORD";
   private final String HOST = "MONGO_HOST";
   private final String DB_NAME = "MONGO_DB_NAME";
-
+  private final String COLLECTION = "MONGO_POST_COLLECTION";
   private MongoClient mongoClient;
   private MongoDatabase db;
 
@@ -69,12 +70,13 @@ public class SubmissionCollector implements Collector<Post, Submission> {
   @Override
   public void save(Collection<Post> data) {
     System.out.println("saving data");
-    String dbName = connectDatabase();
+    connectDatabase();
     List<Document> docs = new ArrayList<>();
     data.stream()
             .map(post -> createDocument(post))
             .collect(Collectors.toList());
-    insertMany(docs, dbName);
+    String collection = readCollectionVariable();
+    insertMany(docs, collection);
     closeDatabase();
   }
 
@@ -97,16 +99,17 @@ public class SubmissionCollector implements Collector<Post, Submission> {
 
   private Map<String, String> readDatabaseCredentials(){
     Map<String, String> envMap = new HashMap<>(4);
-    if(System.getenv(USERNAME) == null){
-      System.err.println("Could not find environment variables. Did you source the environment?");
-      System.err.println("source <filename>.env");
-      System.exit(1);
-    }
+    checkIfSourced(USERNAME);
     envMap.put(USERNAME, System.getenv(USERNAME));
     envMap.put(PASSWORD, System.getenv(PASSWORD));
     envMap.put(HOST, System.getenv(HOST));
     envMap.put(DB_NAME, System.getenv(DB_NAME));
     return envMap;
+  }
+
+  private String readCollectionVariable(){
+    checkIfSourced(COLLECTION);
+    return System.getenv(COLLECTION);
   }
 
   private Document createDocument(Post post){
@@ -117,12 +120,15 @@ public class SubmissionCollector implements Collector<Post, Submission> {
     return doc;
   }
 
-  private void insertDocument(Document doc, String dbName){
-    db.getCollection(dbName).insertOne(doc);
+  private void insertMany(List<Document> documents, String collection){
+    db.getCollection(collection).insertMany(documents);
   }
 
-  private void insertMany(List<Document> documents, String dbName){
-    db.getCollection(dbName).insertMany(documents);
+  private void checkIfSourced(String variableName){
+    if(System.getenv(variableName) == null){
+      System.err.printf("Could not find environment variable %s. Did you source the environment?", variableName);
+      System.err.println("source <filename>.env");
+      System.exit(1);
+    }
   }
-
 }
