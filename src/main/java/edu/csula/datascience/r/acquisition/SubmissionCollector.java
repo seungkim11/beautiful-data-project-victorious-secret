@@ -55,7 +55,7 @@ public class SubmissionCollector implements Collector<Post, Submission> {
 
   @Override
   public void save(Collection<Post> data) {
-
+    System.out.println("saving data");
   }
 
 }

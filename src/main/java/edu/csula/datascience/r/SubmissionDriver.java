@@ -1,6 +1,12 @@
 package edu.csula.datascience.r;
 
 import edu.csula.datascience.r.acquisition.CommentSource;
+import edu.csula.datascience.r.acquisition.SubmissionCollector;
+import edu.csula.datascience.r.acquisition.SubmissionSource;
+import edu.csula.datascience.r.models.Post;
+import net.dean.jraw.models.Submission;
+
+import java.util.*;
 
 /**
  * Created by tj on 4/21/16.
@@ -8,25 +14,17 @@ import edu.csula.datascience.r.acquisition.CommentSource;
 public class SubmissionDriver {
   public static void main(String[] args) throws Exception{
     long start = System.currentTimeMillis();
+    System.out.println("start time: " + start);
 
-//    System.out.println("start time: " + start);
-//
-//    SubmissionSource source = new SubmissionSource();
-//    Collection<Submission> submissions = source.hasNext() ? source.next() : null;
-//    List<Submission> submissionsForComments = new ArrayList<>();
-//    Iterator<Submission> it = submissions.iterator();
-//    submissionsForComments.add(it.next());
-//    submissionsForComments.add(it.next());
-//    submissionsForComments.add(it.next());
-//    System.out.println("submission size: " + submissions.size());
 
-    String subreddit = "jokes";
-    String postId = "4fs6bv";
+    SubmissionSource source = new SubmissionSource();
+    SubmissionCollector collector = new SubmissionCollector();
+    Collection<Submission> submissions = source.hasNext() ? source.next() : Collections.EMPTY_LIST;
+    System.out.println("submission size: " + submissions.size());
+    Collection<Post> cleanedPosts = collector.mungee(submissions);
+    System.out.println("posts size: " + submissions.size());
+    collector.save(cleanedPosts);
 
-    CommentSource commentSource = new CommentSource();
-    commentSource.setSubreddit(subreddit);
-    commentSource.setPostId(postId);
-    System.out.println(commentSource.next());
 
     long end = System.currentTimeMillis();
     System.out.printf("stop time: %d %ntotal time: %d%n", end, end - start);
