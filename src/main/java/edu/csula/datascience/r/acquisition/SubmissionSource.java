@@ -4,7 +4,6 @@ import edu.csula.datascience.acquisition.Source;
 import edu.csula.datascience.r.auth.RedditOAuth;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.UserAgent;
-import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
 import net.dean.jraw.paginators.SubredditPaginator;

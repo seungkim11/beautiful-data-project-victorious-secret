@@ -4,9 +4,11 @@ import edu.csula.datascience.acquisition.Source;
 import edu.csula.datascience.r.auth.RedditOAuth;
 import net.dean.jraw.RedditClient;
 import net.dean.jraw.http.UserAgent;
+import net.dean.jraw.models.Comment;
 import net.dean.jraw.models.CommentNode;
 import net.dean.jraw.models.Listing;
 import net.dean.jraw.models.Submission;
+import net.dean.jraw.paginators.CommentStream;
 import net.dean.jraw.paginators.SubredditPaginator;
 
 import java.util.ArrayList;
@@ -17,26 +19,15 @@ import java.util.List;
 /**
  * Created by tj on 4/21/16.
  */
-public class CommentSource implements Source<Submission> {
+public class CommentSource implements Source<CommentNode> {
 
-  private final List<String> subreddits;
   private RedditClient redditClient;
+  private List<Submission> submissions;
 
-  public CommentSource(){
-    /*
-    TODO:
-    perhaps each source should correspond to a subreddit? or subset of subreddit
-    funny, news, gifs, reddit pics, etc]
-    showerthoughts, explainlikeimfive, askreddit, jokes, askscience, an
-     */
-    // FIXME: eventually, we should get a list containeing what subreddits to use as source
-    this(Arrays.asList("showerthoughts"));
-  }
-
-  public CommentSource(List<String> subreddits){
-    this.subreddits = subreddits;
+  public CommentSource(List<Submission> submissions){
     UserAgent myUserAgent = UserAgent.of("desktop", "awesomescript", "v0.1", "victorious-secret");
     redditClient = new RedditClient(myUserAgent);
+    this.submissions = submissions;
   }
 
   public boolean hasNext(){
@@ -44,9 +35,9 @@ public class CommentSource implements Source<Submission> {
     return false;
   }
 
-  public Collection<Submission> next(){
+  public Collection<CommentNode> next(){
     // FIXME
-    Collection<Submission> result = new ArrayList<>();
+    Collection<CommentNode> result = new ArrayList<>();
     return result;
   }
 
@@ -54,26 +45,24 @@ public class CommentSource implements Source<Submission> {
     // FIXME
   }
 
-  // FIXME should be private
-  public List<Submission> downloadSubmissions(){
-    int maxPostsPerPage = 100;
-    int maxPages = 10;
-
+  public List<Comment> downloadComments(String subreddit){
+    int limit = 1000;
     if(!redditClient.isAuthenticated()){
       RedditOAuth auth = new RedditOAuth();
       auth.authenticate(redditClient);
     }
-
-    List<Submission> submissions = new ArrayList<>();
-    for(String subreddit : subreddits){
-      SubredditPaginator paginator = new SubredditPaginator(redditClient, subreddit);
-      paginator.setLimit(maxPostsPerPage);
-      List<Listing<Submission>> listings = paginator.accumulate(maxPages);
-      for(Listing<Submission> listing : listings){
-        submissions.addAll(listing);
-      }
+    CommentStream cs = new CommentStream(redditClient, subreddit);
+    cs.setLimit(limit);
+    List<Comment> comments = new ArrayList<>();
+    System.out.printf("downloading comments for %s", subreddit);
+    while(cs.hasNext()){
+      // FIXME move intialization outside of loop
+      List<Comment> temp = cs.next();
+      System.out.printf("next retrieved %d records%n", temp.size());
+      comments.addAll(temp);
     }
-    return submissions;
+    System.out.printf("total comments retrieved %d %n", comments.size());
+    return comments;
   }
 
   public CommentNode downloadComments(Submission submission){
