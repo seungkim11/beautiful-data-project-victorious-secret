@@ -18,8 +18,12 @@ repositories {
 }
 
 jar {
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
   manifest {
-    attributes 'Main-Class': 'edu.csula.datascience.examples.Hello'
+    //attributes 'Main-Class': 'edu.csula.datascience.examples.Hello'
+    attributes 'Main-Class': 'edu.csula.datascience.r.SubmissionDriver'
   }
 }
 
