@@ -24,7 +24,6 @@ public class SubmissionCollector implements Collector<Post, Submission> {
   private final String PASSWORD = "MONGO_PASSWORD";
   private final String HOST = "MONGO_HOST";
   private final String DB_NAME = "MONGO_DB_NAME";
-  private final String COLLECTION = "MONGO_POST_COLLECTION";
   private MongoClient mongoClient;
   private MongoDatabase db;
 
@@ -56,6 +55,7 @@ public class SubmissionCollector implements Collector<Post, Submission> {
       domain = sub.getDomain();
       isSelf = sub.isSelfPost(); // is this correct?
       mediaType = "text";// one of text or image?
+      // FIXME have a method to download all comments for this submission
       comments = new ArrayList<>(0);
       isNSFW = sub.isNsfw();
       timestamp = sub.getCreatedUtc().getTime();
@@ -70,12 +70,15 @@ public class SubmissionCollector implements Collector<Post, Submission> {
   @Override
   public void save(Collection<Post> data) {
     System.out.println("saving data");
-    connectDatabase();
     List<Document> docs;
     docs = data.stream()
             .map(post -> createDocument(post))
             .collect(Collectors.toList());
-    String collection = readCollectionVariable();
+    if(docs.size() < 1){
+      return;
+    }
+    String collection = docs.get(0).getString("subreddit").toLowerCase();
+    connectDatabase();
     insertMany(docs, collection);
     closeDatabase();
   }
@@ -105,11 +108,6 @@ public class SubmissionCollector implements Collector<Post, Submission> {
     envMap.put(HOST, System.getenv(HOST));
     envMap.put(DB_NAME, System.getenv(DB_NAME));
     return envMap;
-  }
-
-  private String readCollectionVariable(){
-    checkIfSourced(COLLECTION);
-    return System.getenv(COLLECTION);
   }
 
   private Document createDocument(Post post){
