@@ -5,6 +5,8 @@ import com.google.appengine.repackaged.com.google.gson.GsonBuilder;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.UpdateResult;
 import edu.csula.datascience.acquisition.Collector;
 import edu.csula.datascience.r.models.Comment;
 import edu.csula.datascience.r.models.Post;
@@ -79,7 +81,10 @@ public class SubmissionCollector implements Collector<Post, Submission> {
     }
     String collection = docs.get(0).getString("subreddit").toLowerCase();
     connectDatabase();
-    insertMany(docs, collection);
+//    insertMany(docs, collection);
+    for(Document doc : docs){
+      replaceOne(doc, collection);
+    }
     closeDatabase();
   }
 
@@ -120,6 +125,18 @@ public class SubmissionCollector implements Collector<Post, Submission> {
 
   private void insertMany(List<Document> documents, String collection){
     db.getCollection(collection).insertMany(documents);
+  }
+
+  private void insertOne(Document document, String collection){
+    db.getCollection(collection).insertOne(document);
+  }
+
+  private void replaceOne(Document document, String collection){
+    UpdateResult result = db.getCollection(collection).replaceOne(Filters.eq("id", document.get("id")), document);
+    long resultsMatched = result.getMatchedCount();
+    if(resultsMatched < 1L){
+      insertOne(document, collection);
+    }
   }
 
   private void checkIfSourced(String variableName){

@@ -19,12 +19,13 @@ public class SubmissionDriver {
 
     SubmissionSource source = new SubmissionSource();
     SubmissionCollector collector = new SubmissionCollector();
-    Collection<Submission> submissions = source.hasNext() ? source.next() : Collections.EMPTY_LIST;
-    System.out.println("submission size: " + submissions.size());
-    Collection<Post> cleanedPosts = collector.mungee(submissions);
-    System.out.println("posts size: " + submissions.size());
-    collector.save(cleanedPosts);
-
+    while(source.hasNext()) {
+      Collection<Submission> submissions = source.next();
+      System.out.println("submission size: " + submissions.size());
+      Collection<Post> cleanedPosts = collector.mungee(submissions);
+      System.out.println("posts size: " + submissions.size());
+      collector.save(cleanedPosts);
+    }
 
     long end = System.currentTimeMillis();
     System.out.printf("stop time: %d %ntotal time: %d%n", end, end - start);
