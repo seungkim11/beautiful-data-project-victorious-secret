@@ -26,7 +26,7 @@ public class SubmissionSource implements Source<Submission> {
     showerthoughts, explainlikeimfive, askreddit, jokes, askscience, an
      */
     // FIXME: eventually, we should get a list containeing what subreddits to use as source
-    this(Arrays.asList("showerthoughts", "jokes"));
+    this(Arrays.asList("showerthoughts", "jokes", "explainlikeimfive", "askreddit", "askscience"));
   }
 
   public SubmissionSource(List<String> subreddits){

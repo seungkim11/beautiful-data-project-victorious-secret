@@ -71,6 +71,7 @@ public class SubmissionCollector implements Collector<Post, Submission> {
 
   @Override
   public void save(Collection<Post> data) {
+    String collection = "posts";
     System.out.println("saving data");
     List<Document> docs;
     docs = data.stream()
@@ -79,7 +80,7 @@ public class SubmissionCollector implements Collector<Post, Submission> {
     if(docs.size() < 1){
       return;
     }
-    String collection = docs.get(0).getString("subreddit").toLowerCase();
+
     connectDatabase();
 //    insertMany(docs, collection);
     for(Document doc : docs){

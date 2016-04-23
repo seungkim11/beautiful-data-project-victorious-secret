@@ -1,6 +1,7 @@
 package edu.csula.datascience.r;
 
 import edu.csula.datascience.r.acquisition.CommentSource;
+import edu.csula.datascience.r.acquisition.NewSubmissionSource;
 import edu.csula.datascience.r.acquisition.SubmissionCollector;
 import edu.csula.datascience.r.acquisition.SubmissionSource;
 import edu.csula.datascience.r.models.Post;
@@ -17,7 +18,7 @@ public class SubmissionDriver {
     System.out.println("start time: " + start);
 
 
-    SubmissionSource source = new SubmissionSource();
+    NewSubmissionSource source = new NewSubmissionSource();
     SubmissionCollector collector = new SubmissionCollector();
     while(source.hasNext()) {
       Collection<Submission> submissions = source.next();
