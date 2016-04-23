@@ -43,4 +43,13 @@ public class RedditOAuth {
       ex.printStackTrace();
     }
   }
+
+  public void revokeToken(RedditClient redditClient){
+    Map<String, String> envMap = getVariables();
+    Credentials credentials = Credentials.script(envMap.get(USERNAME), envMap.get(PASSWORD),
+            envMap.get(APP_ID), envMap.get(APP_SECRET));
+
+    redditClient.getOAuthHelper().revokeAccessToken(credentials);
+
+  }
 }
