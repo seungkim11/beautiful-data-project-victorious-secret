@@ -36,7 +36,9 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
                 int controversiality = (int) comment.get("controversiality");
                 long timestamp = (long) (double) comment.get("created_utc");
 
-                Comment c = new Comment(id, author, replies, body, score, timestamp, controversiality);
+                // FIXME: remember to uncomment- TONY
+                Comment c = new Comment(); // DELETE THIS
+//                Comment c = new Comment(id, author, replies, body, score, timestamp, controversiality);
 
                 // TODO: recursively parse comments
                 if (hasReplies(comment.get("replies"))) {
