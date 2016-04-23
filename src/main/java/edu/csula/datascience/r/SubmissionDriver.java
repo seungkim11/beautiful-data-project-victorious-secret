@@ -12,11 +12,16 @@ import java.util.*;
  */
 public class SubmissionDriver {
   public static void main(String[] args) throws Exception{
+    if(args.length != 1){
+      System.err.println("expecting 1 argument, collection name");
+      System.exit(1);
+    }
+    String collectionName = args[0];
     long start = System.currentTimeMillis();
     System.out.println("start time: " + start);
 
     NewSubmissionSource source = new NewSubmissionSource();
-    SubmissionCollector collector = new SubmissionCollector();
+    SubmissionCollector collector = new SubmissionCollector(collectionName);
     while(source.hasNext()) {
       Collection<Submission> submissions = source.next();
       System.out.println("submission size: " + submissions.size());

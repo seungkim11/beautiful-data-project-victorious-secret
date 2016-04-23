@@ -70,6 +70,7 @@ task collect(type: JavaExec) {
 task submit(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
   main = 'edu.csula.datascience.r.SubmissionDriver'
+  args = ["posts_2016_04_23"]
 }
 
 task comments(type: JavaExec) {

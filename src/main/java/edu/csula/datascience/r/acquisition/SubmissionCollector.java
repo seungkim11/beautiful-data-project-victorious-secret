@@ -28,6 +28,11 @@ public class SubmissionCollector implements Collector<Post, Submission> {
   private final String DB_NAME = "MONGO_DB_NAME";
   private MongoClient mongoClient;
   private MongoDatabase db;
+  private String collectionName;
+
+  public SubmissionCollector(String collectionName){
+    this.collectionName = collectionName;
+  }
 
   @Override
   public Collection<Post> mungee(Collection<Submission> src) {
@@ -71,7 +76,7 @@ public class SubmissionCollector implements Collector<Post, Submission> {
 
   @Override
   public void save(Collection<Post> data) {
-    String collection = "posts";
+
     System.out.println("saving data");
     List<Document> docs;
     docs = data.stream()
@@ -82,10 +87,10 @@ public class SubmissionCollector implements Collector<Post, Submission> {
     }
 
     connectDatabase();
-//    insertMany(docs, collection);
-    for(Document doc : docs){
-      replaceOne(doc, collection);
-    }
+    insertMany(docs, collectionName);
+//    for(Document doc : docs){
+//      replaceOne(doc, collectionName);
+//    }
     closeDatabase();
   }
 
