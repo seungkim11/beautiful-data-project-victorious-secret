@@ -1,9 +1,7 @@
 package edu.csula.datascience.r;
 
-import edu.csula.datascience.r.acquisition.CommentSource;
 import edu.csula.datascience.r.acquisition.NewSubmissionSource;
 import edu.csula.datascience.r.acquisition.SubmissionCollector;
-import edu.csula.datascience.r.acquisition.SubmissionSource;
 import edu.csula.datascience.r.models.Post;
 import net.dean.jraw.models.Submission;
 
@@ -16,7 +14,6 @@ public class SubmissionDriver {
   public static void main(String[] args) throws Exception{
     long start = System.currentTimeMillis();
     System.out.println("start time: " + start);
-
 
     NewSubmissionSource source = new NewSubmissionSource();
     SubmissionCollector collector = new SubmissionCollector();
