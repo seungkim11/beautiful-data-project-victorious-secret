@@ -1,6 +1,6 @@
 package edu.csula.datascience.r.models;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Created by samskim on 4/21/16.
@@ -8,7 +8,7 @@ import java.util.List;
 public class Comment {
     private String id;
     private String author;
-    private List<Comment> replies;
+    private Collection<Comment> replies;
     private String body;
     private int score;
     private long timestamp;
@@ -18,7 +18,7 @@ public class Comment {
 
     }
 
-    public Comment(String id, String author, List<Comment> replies, String body,
+    public Comment(String id, String author, Collection<Comment> replies, String body,
                    int score, long timestamp, int controversiality) {
         this.id = id;
         this.author = author;
@@ -45,11 +45,11 @@ public class Comment {
         this.author = author;
     }
 
-    public List<Comment> getReplies() {
+    public Collection<Comment> getReplies() {
         return replies;
     }
 
-    public void setReplies(List<Comment> replies) {
+    public void setReplies(Collection<Comment> replies) {
         this.replies = replies;
     }
 
@@ -83,5 +83,18 @@ public class Comment {
 
     public void setControversiality(int controversiality) {
         this.controversiality = controversiality;
+    }
+
+    @Override
+    public String toString() {
+        return "Comment{" +
+                "id='" + id + '\'' +
+                ", author='" + author + '\'' +
+                ", replies=" + replies +
+                ", body='" + body + '\'' +
+                ", score=" + score +
+                ", timestamp=" + timestamp +
+                ", controversiality=" + controversiality +
+                '}';
     }
 }

@@ -45,6 +45,10 @@ public class CommentSource implements Source<JSONObject> {
         authenticate();
     }
 
+    public CommentSource(String str){
+
+    }
+
     public CommentSource(MongoDatabase db) {
         // connect to db collection
         collection = db.getCollection("posts_2016_04_23");

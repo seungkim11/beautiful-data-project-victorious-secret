@@ -10,6 +10,8 @@ import edu.csula.datascience.r.acquisition.MongoDriver;
 import edu.csula.datascience.r.acquisition.SubmissionSource;
 import edu.csula.datascience.r.models.Comment;
 import net.dean.jraw.models.Submission;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.*;
@@ -31,12 +33,12 @@ public class CommentDriver {
             Collection<JSONObject> commentBlobsOfSubmissions = source.next();
 
             // each submission has collections of comment objects
-            Collection<Collection<JSONObject>> commentsLists = collector.splitSubmissionComments(commentBlobsOfSubmissions);
+            Collection<JSONArray> commentsLists = collector.splitSubmissionComments(commentBlobsOfSubmissions);
 
             // for each list of comment objects for 1 submission:
-            for (Collection<JSONObject> comments: commentsLists){
+            for (JSONArray comments: commentsLists){
 
-                // mungee it
+                // mungee
                 Collection<Comment> cleanedComments = collector.mungee(comments);
             }
 

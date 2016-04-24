@@ -1,5 +1,6 @@
 package edu.csula.datascience.r;
 
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import org.bson.Document;
@@ -18,11 +19,13 @@ import edu.csula.datascience.r.acquisition.MongoDriver;
 public class MongoConnectionTest {
     MongoDatabase db;
     MongoDriver md;
+    MongoCollection collection;
 
     @Before
     public void setup(){
         md = new MongoDriver();
         db = md.getDb();
+        collection = db.getCollection("posts_2016_04_23");
     }
 
     @Test
@@ -37,16 +40,16 @@ public class MongoConnectionTest {
 
     @Test
     public void mongoConnectionTest(){
-        MongoDriver mongoDriver = new MongoDriver();
         Map<String, String> map = new HashMap<>();
-        Assert.assertTrue(db.getCollection("posts_2016_04_23").count() > 6000000);
+        Assert.assertTrue(collection.count() > 6000000);
     }
 
     @Test
     public void mongoCollectionTest(){
-        Document doc = db.getCollection("posts_2016_4_23").find().first();
-        System.out.println(doc.get("id").toString());
-        Assert.assertTrue(doc.get("id").toString().length() < 7);
+
+        Document doc = (Document) collection.find().first();
+
+        Assert.assertEquals(doc.get("id").toString().length(), 6);
     }
 
 

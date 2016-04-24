@@ -79,7 +79,7 @@ task submit(type: JavaExec) {
 
 task comments(type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
-    main = 'edu.csula.datascience.r.CommentApp'
+    main = 'edu.csula.datascience.r.CommentJSONObjectPractice'
 }
 
 task wrapper(type: Wrapper) {

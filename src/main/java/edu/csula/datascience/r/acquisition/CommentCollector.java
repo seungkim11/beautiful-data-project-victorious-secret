@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,13 +31,20 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
         this.collection = db.getCollection("posts_2016_04_23");
 
     }
-    // TODO: mungee jsonobject, add to list and return
+
     @Override
     public Collection<Comment> mungee(Collection<JSONObject> src) {
+        // this override method not applicable in my case
+        // check below mungee method
+        return null;
+    }
 
+    public Collection<Comment> mungee(JSONArray src){
         List<Comment> list = new ArrayList<>();
+        Iterator<Object> iterator = src.iterator();
 
-        for (JSONObject commentNode : src) {
+        while (iterator.hasNext()){
+            JSONObject commentNode = (JSONObject) iterator.next();
 
             // type t1 = comment
             // type t3 = post
@@ -45,7 +53,6 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
 
                 JSONObject commentObj = (JSONObject) commentNode.get("data");
                 Comment c = parseComment(commentObj);
-
                 list.add(c);
 
             }
@@ -55,9 +62,9 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
     }
 
     // the input blobs contains comment blobs of 1000 submissions
-    public Collection<Collection<JSONObject>> splitSubmissionComments(Collection<JSONObject> blobs){
+    public Collection<JSONArray> splitSubmissionComments(Collection<JSONObject> blobs){
 
-        Collection<Collection<JSONObject>> commentsList = new ArrayList<>();
+        Collection<JSONArray> commentsList = new ArrayList<>();
 
         // for comment blob of each submission
         for (JSONObject blob: blobs){
@@ -66,7 +73,7 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
             JSONObject data = (JSONObject) blob.get("data");
 
             // get children (aka comment objects)
-            Collection<JSONObject> comments = (Collection<JSONObject>) data.get("children");
+            JSONArray comments = (JSONArray) data.get("children");
 
             // now "comments" is list of all comments in a submission
             commentsList.add(comments);
@@ -75,36 +82,36 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
         return commentsList;
     }
 
-    private Comment parseComment(JSONObject commentNode) {
+    private Comment parseComment(JSONObject comment) {
         // type t1 = comment
         // type t3 = post
         // type listing = array
         Comment c = null;
 
-        if (commentNode.get("kind").equals("t1")) {
-            JSONObject comment = (JSONObject) commentNode.get("data");
+        String id = (String) comment.get("id");
+        String author = (String) comment.get("author");
+        String body = (String) comment.get("body");
+        int score = (int) comment.get("score");
+        long timestamp = (long) (double) comment.get("created_utc");
+        int controversiality = (int) comment.get("controversiality");
+        Collection<Comment> replies = new ArrayList<>();
+        // FIXME: do we need controversiality? everything is 0. maybe need to be removed
 
-            String id = (String) comment.get("id");
-            String author = (String) comment.get("author");
-            String body = (String) comment.get("body");
-            int score = (int) comment.get("score");
-            long timestamp = (long) (double) comment.get("created_utc");
-            int controversiality = (int) comment.get("controversiality");
-            List<Comment> replies = new ArrayList<>();
-            // FIXME: do we need controversiality? everything is 0. maybe need to be removed
+        // TODO: recursively parse comments
+        if (hasReplies(comment.get("replies"))) {
+//            replies = getComments(comment.get("replies"));
+            JSONObject replyblob = (JSONObject) comment.get("replies");
+            JSONObject data = (JSONObject) replyblob.get("data");
+            JSONArray comments = (JSONArray) data.get("children");
 
-            // TODO: recursively parse comments
-            if (hasReplies(comment.get("replies"))) {
-                replies = getComments(comment.get("replies"));
-            }
+            replies = mungee(comments);
+        }
 
-            c = new Comment(id, author, replies, body, score, timestamp, controversiality);
+        c = new Comment(id, author, replies, body, score, timestamp, controversiality);
 
 //            System.out.println("id: " + id + ", author: " + ", body: " + body +
 //                    ", score: " + score + ", controversiality: " + controversiality +
 //                    ", timestamp: " + timestamp + ", likes: " + comment.get("likes") + ", replies: " + comment.get("replies") + "\n");
-
-        }
 
         return c;
 
