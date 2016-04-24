@@ -3,11 +3,13 @@ package edu.csula.datascience.r;
 import edu.csula.datascience.r.auth.RedditOAuthHttp;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Created by samskim on 4/24/16.
  */
+@Ignore
 public class AuthTest {
     private final String ENV_TEST = "TESTING_ENV";
     RedditOAuthHttp oAuthHttp;

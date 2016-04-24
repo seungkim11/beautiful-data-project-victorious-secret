@@ -6,6 +6,7 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -16,6 +17,8 @@ import edu.csula.datascience.r.acquisition.MongoDriver;
 /**
  * Created by samskim on 4/24/16.
  */
+
+@Ignore
 public class MongoConnectionTest {
     MongoDatabase db;
     MongoDriver md;

@@ -43,6 +43,7 @@ public class JSONObjectParseTest {
 
     @Test
     public void parseBlob() {
+        assert 19 == comments.length();
         Assert.assertEquals(19, comments.length());
     }
 
