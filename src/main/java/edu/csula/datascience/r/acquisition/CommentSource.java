@@ -1,9 +1,18 @@
 package edu.csula.datascience.r.acquisition;
 
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
+
 import edu.csula.datascience.acquisition.Source;
 import edu.csula.datascience.r.auth.RedditOAuth;
 import edu.csula.datascience.r.auth.RedditOAuthHttp;
 import edu.csula.datascience.r.models.Comment;
+import edu.csula.datascience.r.utils.Util;
+
+import org.bson.Document;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -12,9 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -22,54 +29,82 @@ import java.util.function.Consumer;
  */
 public class CommentSource implements Source<JSONObject> {
 
-    private String subreddit;
-    private String postId;
     private String token;
     private RedditOAuthHttp oAuth;
+    private MongoCollection collection;
+    private long collectionSize;
+    private long count;
+    private int blockSize;
 
+    public CommentSource() {
+        // connect reddit
+        oAuth = new RedditOAuthHttp();
+        oAuth.getEnvKeys();
 
-    public CommentSource(){
-
+        //retrieve token
         authenticate();
     }
 
-    public void authenticate(){
+    public CommentSource(MongoDatabase db) {
+        // connect to db collection
+        collection = db.getCollection("posts_2016_04_23");
+        collectionSize = collection.count();
+        count = 0;
+
+        blockSize = 1;
+        // connect reddit
         oAuth = new RedditOAuthHttp();
         oAuth.getEnvKeys();
+
+        //retrieve token
+        authenticate();
+
+    }
+
+    // retrieve token
+    public void authenticate() {
         String token = oAuth.getToken();
         if (!token.trim().isEmpty()) {
             System.out.println("Token successfully retrieved");
             this.token = token;
-        }else{
+        } else {
             System.out.println("Failed to retrieve token");
             System.exit(1);
         }
     }
 
-    public void setSubreddit(String subreddit){
-        this.subreddit = subreddit;
-    }
-
-    public void setPostId(String postId){
-        this.postId = postId;
-    }
-
     @Override
     public boolean hasNext() {
-        return false;
+
+        return count < collectionSize;
     }
 
     @Override
     public Collection<JSONObject> next() {
 
-        return null;
+
+        Collection<JSONObject> commentBlob = new ArrayList<>();
+        String id, subreddit, jsonString;
+        Document doc;
+        MongoCursor<Document> cursor = collection.find().skip((int) count).limit(blockSize).iterator();
+        while (cursor.hasNext()) {
+            doc = cursor.next();
+            subreddit = (String) doc.get("subreddit");
+            id = (String) doc.get("id");
+            jsonString = download(subreddit, id);
+            commentBlob.add(parseComments(jsonString));
+        }
+
+        count += blockSize;
+        return commentBlob;
     }
 
     // FIXME
-    public void download(){
+    public String download(String subreddit, String postId) {
         String url = "https://oauth.reddit.com/r/" + subreddit + "/comments/" + postId + ".json?limit=500";
 
         String requestMethod = "GET";
+        StringBuffer response = new StringBuffer();
         try {
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -84,35 +119,31 @@ public class CommentSource implements Source<JSONObject> {
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
             String inputLine;
-            StringBuffer response = new StringBuffer();
 
-            while ((inputLine = in.readLine()) != null){
+            while ((inputLine = in.readLine()) != null) {
                 response.append(inputLine);
             }
             in.close();
 
-            System.out.println(response.toString());
-
-            List<JSONObject> commentList = new ArrayList<>();
-
-            JSONArray rootblob = new JSONArray(response.toString());
-
-            // first object in the array is submission post itself
-            // second object in the array is the comments
-            JSONObject commentObject = rootblob.getJSONObject(1);
-            JSONObject data = (JSONObject) commentObject.get("data");
-
-            // here are all root comments in the submission
-            JSONArray comments = (JSONArray) data.get("children");
-
-            for (Object commentObj: comments) {
-                JSONObject commentNode = (JSONObject) commentObj;
-                commentList.add(commentNode);
-            }
+//            System.out.println(response.toString());
 
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            return response.toString();
         }
+    }
+
+    public JSONObject parseComments(String response) {
+        Collection<JSONObject> commentList = new ArrayList<>();
+
+        JSONArray rootblob = new JSONArray(response.toString());
+
+        // first object in the array is submission post itself
+        // second object in the array is the comments
+        JSONObject commentObject = rootblob.getJSONObject(1);
+        return commentObject;
+
     }
 
 

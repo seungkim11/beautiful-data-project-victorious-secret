@@ -85,3 +85,7 @@ task comments(type: JavaExec) {
 task wrapper(type: Wrapper) {
   gradleVersion = '2.0'
 }
+
+test {
+  classpath = sourceSets.test.runtimeClasspath + files("${projectDir}/test/")
+}
