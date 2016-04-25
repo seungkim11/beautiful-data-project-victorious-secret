@@ -117,6 +117,10 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
 
     }
 
+    private void setCollection(String collectionName){
+
+    }
+
     private List<Comment> getComments(Object blob) {
         // get data object
         JSONObject jsonObject = (JSONObject) blob;

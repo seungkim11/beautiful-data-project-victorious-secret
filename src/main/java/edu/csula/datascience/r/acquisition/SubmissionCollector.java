@@ -30,6 +30,10 @@ public class SubmissionCollector implements Collector<Post, Submission> {
   private MongoDatabase db;
   private String collectionName;
 
+  public SubmissionCollector(){
+
+  }
+
   public SubmissionCollector(String collectionName){
     this.collectionName = collectionName;
   }

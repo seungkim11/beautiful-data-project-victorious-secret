@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by samskim on 4/24/16.
  */
-public class JSONObjectParseTest {
+public class CommentCollectorTest {
     List<JSONObject> list;
     String jsonstring;
     CommentCollector collector;
