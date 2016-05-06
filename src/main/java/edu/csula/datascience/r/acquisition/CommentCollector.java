@@ -6,14 +6,19 @@ import edu.csula.datascience.acquisition.Collector;
 import edu.csula.datascience.r.models.Comment;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+
+import static com.mongodb.client.model.Filters.eq;
 
 /**
  * Created by samskim on 4/21/16.
@@ -66,8 +71,31 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
 
         Collection<JSONArray> commentsList = new ArrayList<>();
 
+//        // for comment blob of each submission
+//        for (JSONObject blob: blobs){
+//
+//            // get data object
+//            JSONObject data = (JSONObject) blob.get("data");
+//
+//            // get children (aka comment objects)
+//            JSONArray comments = (JSONArray) data.get("children");
+//
+//            // now "comments" is list of all comments in a submission
+//            commentsList.add(comments);
+//        }
+
+        return commentsList;
+    }
+
+
+    public Map<ObjectId, JSONArray> splitSubmissionComments(Map<ObjectId, JSONObject> blobs){
+
+        Map<ObjectId, JSONArray> commentsList = new HashMap<>();
+
         // for comment blob of each submission
-        for (JSONObject blob: blobs){
+        for (ObjectId id: blobs.keySet()){
+
+            JSONObject blob = blobs.get(id);
 
             // get data object
             JSONObject data = (JSONObject) blob.get("data");
@@ -76,11 +104,12 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
             JSONArray comments = (JSONArray) data.get("children");
 
             // now "comments" is list of all comments in a submission
-            commentsList.add(comments);
+            commentsList.put(id, comments);
         }
 
         return commentsList;
     }
+
 
     private Comment parseComment(JSONObject comment) {
         // type t1 = comment
@@ -134,8 +163,28 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
     @Override
     public void save(Collection<Comment> data) {
 
-        System.out.println("saving data");
+//        System.out.println("saving data");
+//
+//        List<Document> documents = data.stream()
+//                .map(item -> new Document()
+//                        .append("comment_id", item.getId())
+//                        .append("author", item.getAuthor())
+//                        .append("body", item.getBody())
+//                        .append("score", item.getScore())
+//                        .append("timestamp", item.getTimestamp())
+//                        .append("controversiality", item.getControversiality())
+//                        .append("replies", item.getReplies()))
+//                .collect(Collectors.toList());
+//
+//        collection.insertMany(documents);
 
+    }
+
+    public boolean hasReplies(Object repliesObj){
+        return !repliesObj.toString().trim().isEmpty();
+    }
+
+    public void save(ObjectId id, Collection<Comment> data) {
         List<Document> documents = data.stream()
                 .map(item -> new Document()
                         .append("comment_id", item.getId())
@@ -147,12 +196,12 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
                         .append("replies", item.getReplies()))
                 .collect(Collectors.toList());
 
-        collection.insertMany(documents);
+        Document doc = (Document) collection.find(eq("_id", id)).first();
+        doc.append("comments", documents);
+
+        System.out.println(doc);
+
+//        collection.replaceOne(eq("_id", id), doc);
 
     }
-
-    public boolean hasReplies(Object repliesObj){
-        return !repliesObj.toString().trim().isEmpty();
-    }
-
 }

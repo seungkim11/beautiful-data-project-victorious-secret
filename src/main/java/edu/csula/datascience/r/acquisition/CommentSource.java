@@ -1,5 +1,6 @@
 package edu.csula.datascience.r.acquisition;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
@@ -13,6 +14,7 @@ import edu.csula.datascience.r.models.Comment;
 import edu.csula.datascience.r.utils.Util;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,6 +24,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -35,6 +38,11 @@ public class CommentSource implements Source<JSONObject> {
     private long collectionSize;
     private long count;
     private int blockSize;
+    private long timerStart;
+    private long timerEnd;
+    private int rateCount;
+    private long rateTimerStart;
+    private long rateTimerEnd;
 
     public CommentSource() {
         // connect reddit
@@ -46,7 +54,7 @@ public class CommentSource implements Source<JSONObject> {
     }
 
     public CommentSource(String str){
-
+        // for testing
     }
 
     public CommentSource(MongoDatabase db) {
@@ -55,7 +63,7 @@ public class CommentSource implements Source<JSONObject> {
         collectionSize = collection.count();
         count = 0;
 
-        blockSize = 1;
+        blockSize = 60;
         // connect reddit
         oAuth = new RedditOAuthHttp();
         oAuth.getEnvKeys();
@@ -70,6 +78,7 @@ public class CommentSource implements Source<JSONObject> {
         String token = oAuth.getToken();
         if (!token.trim().isEmpty()) {
             System.out.println("Token successfully retrieved");
+            timerStart = System.currentTimeMillis();
             this.token = token;
         } else {
             System.out.println("Failed to retrieve token");
@@ -86,21 +95,87 @@ public class CommentSource implements Source<JSONObject> {
     @Override
     public Collection<JSONObject> next() {
 
+//
+//        Collection<JSONObject> commentBlob = new ArrayList<>();
+//        String id, subreddit, jsonString;
+//        Document doc;
+//        MongoCursor<Document> cursor = collection.find().skip((int) count).limit(blockSize).iterator();
+//        while (cursor.hasNext()) {
+//            doc = cursor.next();
+//            subreddit = (String) doc.get("subreddit");
+//            id = (String) doc.get("id");
+//
+//            if (getElapsedMinutes() > 55.0){
+//                authenticate();
+//            }
+//
+//            jsonString = download(subreddit, id);
+//            commentBlob.add(parseComments(jsonString));
+//        }
+//
+//        count += blockSize;
+//        return commentBlob;
+        return null;
+    }
 
-        Collection<JSONObject> commentBlob = new ArrayList<>();
+    public Map<ObjectId, JSONObject> nextMap() {
+
+        Map<ObjectId, JSONObject> commentBlobMap = new HashMap<>();
         String id, subreddit, jsonString;
         Document doc;
         MongoCursor<Document> cursor = collection.find().skip((int) count).limit(blockSize).iterator();
+        rateTimerStart = System.currentTimeMillis();
+        rateCount = 0;
         while (cursor.hasNext()) {
             doc = cursor.next();
             subreddit = (String) doc.get("subreddit");
             id = (String) doc.get("id");
+
+            if (getElapsedMinutes() > 55.0){
+                System.out.println("need to authenticate");
+                authenticate();
+            }
+
+            // check rate limit of 60 request/min
+            int checkRateLimit = checkRateLimit();
+            if (checkRateLimit > 0) try {
+                // if limit exceed, sleep needed time and start timer again, set rate count to 0
+                System.out.println("Rate Limit: " + rateCount + ", need to sleep: " + checkRateLimit);
+                TimeUnit.SECONDS.sleep(checkRateLimit + 5);
+                rateCount = 0;
+                rateTimerStart = System.currentTimeMillis();
+
+            } catch (InterruptedException e) {
+                System.out.println("Interrupt Exception occured with ratecount");
+                e.printStackTrace();
+            }
+
             jsonString = download(subreddit, id);
-            commentBlob.add(parseComments(jsonString));
+            rateCount++;
+            commentBlobMap.put((ObjectId) doc.get("_id"), parseComments(jsonString));
         }
 
         count += blockSize;
-        return commentBlob;
+        return commentBlobMap;
+    }
+
+    public int checkRateLimit(){
+
+        if (rateCount < 60){
+            return -1;
+        }else{
+            rateTimerEnd = System.currentTimeMillis();
+            double tDelta = rateTimerEnd - rateTimerStart;
+            double elapsedTimeInSeconds = (tDelta / 1000.0);
+            return (int) (60.0 - elapsedTimeInSeconds);
+        }
+    }
+
+    public double getElapsedMinutes(){
+        timerEnd = System.currentTimeMillis();
+        double tDelta = timerEnd - timerStart;
+        return (tDelta / 1000.0) / 60.0;
+
     }
 
     // FIXME
@@ -109,9 +184,11 @@ public class CommentSource implements Source<JSONObject> {
 
         String requestMethod = "GET";
         StringBuffer response = new StringBuffer();
+        URL obj = null;
+        HttpURLConnection con = null;
         try {
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            obj = new URL(url);
+            con = (HttpURLConnection) obj.openConnection();
             con.setRequestMethod(requestMethod);
 
             con.setRequestProperty("Authorization", "bearer " + token);
@@ -133,7 +210,12 @@ public class CommentSource implements Source<JSONObject> {
 
         } catch (IOException e) {
             e.printStackTrace();
+            TimeUnit.MINUTES.sleep(1);
+            return download(subreddit, postId);
         } finally {
+            if (con != null){
+                con.disconnect();
+            }
             return response.toString();
         }
     }

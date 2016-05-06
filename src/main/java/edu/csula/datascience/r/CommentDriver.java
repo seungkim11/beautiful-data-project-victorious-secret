@@ -1,16 +1,12 @@
 package edu.csula.datascience.r;
 
-import com.google.appengine.repackaged.com.google.gson.JsonObject;
-
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import edu.csula.datascience.r.acquisition.CommentCollector;
 import edu.csula.datascience.r.acquisition.CommentSource;
-import edu.csula.datascience.r.acquisition.MongoDriver;
-import edu.csula.datascience.r.acquisition.SubmissionSource;
+import edu.csula.datascience.r.acquisition.MyMongoDriver;
 import edu.csula.datascience.r.models.Comment;
-import net.dean.jraw.models.Submission;
 
+import org.bson.types.ObjectId;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -23,23 +19,29 @@ public class CommentDriver {
     public static void main(String[] args) throws Exception {
         long start = System.currentTimeMillis();
 
-        MongoDriver mongoDriver = new MongoDriver();
+        MyMongoDriver mongoDriver = new MyMongoDriver();
         MongoDatabase db = mongoDriver.getDb();
         CommentSource source= new CommentSource(db);
         CommentCollector collector = new CommentCollector(db);
         while (source.hasNext()){
 
             // this collection includes json comment blobs for 1000 submissions
-            Collection<JSONObject> commentBlobsOfSubmissions = source.next();
+//            Collection<JSONObject> commentBlobsOfSubmissions = source.next();
+            Map<ObjectId, JSONObject> commentBlobsOfSubmissionsMap = source.nextMap();
 
             // each submission has collections of comment objects
-            Collection<JSONArray> commentsLists = collector.splitSubmissionComments(commentBlobsOfSubmissions);
+//            Collection<JSONArray> commentsLists = collector.splitSubmissionComments(commentBlobsOfSubmissionsMap);
+            Map<ObjectId, JSONArray> commentsLists = collector.splitSubmissionComments(commentBlobsOfSubmissionsMap);
 
             // for each list of comment objects for 1 submission:
-            for (JSONArray comments: commentsLists){
+            for (ObjectId id: commentsLists.keySet()){
+
+                JSONArray comments = commentsLists.get(id);
 
                 // mungee
                 Collection<Comment> cleanedComments = collector.mungee(comments);
+
+                collector.save(id, cleanedComments);
             }
 
         }

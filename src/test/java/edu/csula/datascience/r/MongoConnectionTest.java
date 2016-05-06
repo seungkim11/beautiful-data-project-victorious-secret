@@ -12,7 +12,7 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.csula.datascience.r.acquisition.MongoDriver;
+import edu.csula.datascience.r.acquisition.MyMongoDriver;
 
 /**
  * Created by samskim on 4/24/16.
@@ -21,12 +21,12 @@ import edu.csula.datascience.r.acquisition.MongoDriver;
 @Ignore
 public class MongoConnectionTest {
     MongoDatabase db;
-    MongoDriver md;
+    MyMongoDriver md;
     MongoCollection collection;
 
     @Before
     public void setup(){
-        md = new MongoDriver();
+        md = new MyMongoDriver();
         db = md.getDb();
         collection = db.getCollection("posts_2016_04_23");
     }

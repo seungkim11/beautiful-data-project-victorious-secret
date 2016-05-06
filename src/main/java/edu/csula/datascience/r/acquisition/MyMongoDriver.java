@@ -11,7 +11,7 @@ import java.util.Map;
 /**
  * Created by samskim on 4/24/16.
  */
-public class MongoDriver {
+public class MyMongoDriver {
 
     private final String USERNAME = "MONGO_USERNAME";
     private final String PASSWORD = "MONGO_PASSWORD";
@@ -21,7 +21,7 @@ public class MongoDriver {
     private MongoDatabase db;
     private String collectionName;
 
-    public MongoDriver(){
+    public MyMongoDriver(){
         readDatabaseCredentials();
         connectDatabase();
     }
