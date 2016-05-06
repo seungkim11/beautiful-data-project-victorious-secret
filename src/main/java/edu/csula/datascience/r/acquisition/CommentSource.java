@@ -40,8 +40,8 @@ public class CommentSource implements Source<JSONObject> {
     private int blockSize;
     private long timerStart;
     private long timerEnd;
-    private int rateCount;
-    private long rateTimerStart;
+
+
     private long rateTimerEnd;
 
     public CommentSource() {
@@ -53,7 +53,7 @@ public class CommentSource implements Source<JSONObject> {
         authenticate();
     }
 
-    public CommentSource(String str){
+    public CommentSource(String str) {
         // for testing
     }
 
@@ -124,54 +124,32 @@ public class CommentSource implements Source<JSONObject> {
         String id, subreddit, jsonString;
         Document doc;
         MongoCursor<Document> cursor = collection.find().skip((int) count).limit(blockSize).iterator();
-        rateTimerStart = System.currentTimeMillis();
-        rateCount = 0;
+
+
         while (cursor.hasNext()) {
             doc = cursor.next();
             subreddit = (String) doc.get("subreddit");
             id = (String) doc.get("id");
 
-            if (getElapsedMinutes() > 55.0){
+            if (getElapsedMinutes() > 55) {
                 System.out.println("need to authenticate");
                 authenticate();
             }
 
-            // check rate limit of 60 request/min
-            int checkRateLimit = checkRateLimit();
-            if (checkRateLimit > 0) try {
-                // if limit exceed, sleep needed time and start timer again, set rate count to 0
-                System.out.println("Rate Limit: " + rateCount + ", need to sleep: " + checkRateLimit);
-                TimeUnit.SECONDS.sleep(checkRateLimit + 5);
-                rateCount = 0;
-                rateTimerStart = System.currentTimeMillis();
-
-            } catch (InterruptedException e) {
-                System.out.println("Interrupt Exception occured with ratecount");
-                e.printStackTrace();
-            }
-
             jsonString = download(subreddit, id);
-            rateCount++;
-            commentBlobMap.put((ObjectId) doc.get("_id"), parseComments(jsonString));
+            if (jsonString.isEmpty()){
+                System.out.println("Downloading " + subreddit + "/" + id + " unauthorized. Skipping to next source");
+            }else{
+                commentBlobMap.put((ObjectId) doc.get("_id"), parseComments(jsonString));
+            }
+            count++;
+            System.out.println("Count: " + count);
         }
 
-        count += blockSize;
         return commentBlobMap;
     }
 
-    public int checkRateLimit(){
-
-        if (rateCount < 60){
-            return -1;
-        }else{
-            rateTimerEnd = System.currentTimeMillis();
-            double tDelta = rateTimerEnd - rateTimerStart;
-            double elapsedTimeInSeconds = (tDelta / 1000.0);
-            return (int) (60.0 - elapsedTimeInSeconds);
-        }
-    }
-
-    public double getElapsedMinutes(){
+    public double getElapsedMinutes() {
         timerEnd = System.currentTimeMillis();
         double tDelta = timerEnd - timerStart;
         return (tDelta / 1000.0) / 60.0;
@@ -194,8 +172,7 @@ public class CommentSource implements Source<JSONObject> {
             con.setRequestProperty("Authorization", "bearer " + token);
             con.setRequestProperty("User-Agent", "github:csula-students/beautiful-data-project-victorious-secret v1.0 by /u/" + oAuth.getUsername());
             int responseCode = con.getResponseCode();
-            System.out.println("\nSending '" + requestMethod + "' request to URL : " + url);
-            System.out.println("Response Code: " + responseCode);
+            System.out.println("\nSending '" + requestMethod + "' request to URL : " + url + ", Response: " + responseCode);
 
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
@@ -210,10 +187,10 @@ public class CommentSource implements Source<JSONObject> {
 
         } catch (IOException e) {
             e.printStackTrace();
-            TimeUnit.MINUTES.sleep(1);
-            return download(subreddit, postId);
+            return "";
+
         } finally {
-            if (con != null){
+            if (con != null) {
                 con.disconnect();
             }
             return response.toString();
@@ -232,5 +209,7 @@ public class CommentSource implements Source<JSONObject> {
 
     }
 
-
+    public long getCount() {
+        return count;
+    }
 }

@@ -1,5 +1,8 @@
 package edu.csula.datascience.r.acquisition;
 
+import com.google.api.client.util.Lists;
+
+import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import edu.csula.datascience.acquisition.Collector;
@@ -24,16 +27,25 @@ import static com.mongodb.client.model.Filters.eq;
  * Created by samskim on 4/21/16.
  */
 public class CommentCollector implements Collector<Comment, JSONObject> {
-    MongoDatabase db;
-    MongoCollection collection;
+    MongoDatabase submissionDb;
+    MongoCollection submissionCollection;
+    MongoClient localClient;
+    MongoDatabase localDb;
+    MongoCollection localCollection;
+
 
     public CommentCollector(){
 
     }
 
-    public CommentCollector(MongoDatabase db){
-        this.db = db;
-        this.collection = db.getCollection("posts_2016_04_23");
+    public CommentCollector(MongoDatabase submissionDb){
+
+        this.submissionDb = submissionDb;
+        this.submissionCollection = submissionDb.getCollection("posts_2016_04_23");
+        this.localClient = new MongoClient();
+        this.localDb = this.localClient.getDatabase("reddit");
+        this.localCollection = this.localDb.getCollection("posts_2016_04_23");
+
 
     }
 
@@ -66,7 +78,7 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
         return list;
     }
 
-    // the input blobs contains comment blobs of 1000 submissions
+    // not needed anymore
     public Collection<JSONArray> splitSubmissionComments(Collection<JSONObject> blobs){
 
         Collection<JSONArray> commentsList = new ArrayList<>();
@@ -87,7 +99,7 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
         return commentsList;
     }
 
-
+    // the input blobs contains comment blobs of 1000 submissions
     public Map<ObjectId, JSONArray> splitSubmissionComments(Map<ObjectId, JSONObject> blobs){
 
         Map<ObjectId, JSONArray> commentsList = new HashMap<>();
@@ -185,23 +197,52 @@ public class CommentCollector implements Collector<Comment, JSONObject> {
     }
 
     public void save(ObjectId id, Collection<Comment> data) {
-        List<Document> documents = data.stream()
-                .map(item -> new Document()
-                        .append("comment_id", item.getId())
-                        .append("author", item.getAuthor())
-                        .append("body", item.getBody())
-                        .append("score", item.getScore())
-                        .append("timestamp", item.getTimestamp())
-                        .append("controversiality", item.getControversiality())
-                        .append("replies", item.getReplies()))
-                .collect(Collectors.toList());
+//        List<Document> documents = data.stream()
+//                .map(item -> new Document()
+//                        .append("comment_id", item.getId())
+//                        .append("author", item.getAuthor())
+//                        .append("body", item.getBody())
+//                        .append("score", item.getScore())
+//                        .append("timestamp", item.getTimestamp())
+//                        .append("controversiality", item.getControversiality())
+//                        .append("replies", item.getReplies()))
+//                .collect(Collectors.toList());
 
-        Document doc = (Document) collection.find(eq("_id", id)).first();
+        List<Document> documents = Lists.newArrayList();
+        for (Comment c: data){
+            Document convertedCommentDoc = convertCommentToDocument(c);
+            documents.add(convertedCommentDoc);
+        }
+
+        Document doc = (Document) submissionCollection.find(eq("_id", id)).first();
         doc.append("comments", documents);
 
-        System.out.println(doc);
+        String subreddit = (String) doc.get("subreddit");
+        String submission_id = (String) doc.get("id");
 
+        this.localCollection.insertOne(doc);
+        System.out.println("Saved subreddit: " + subreddit + ", id: " + submission_id);
 //        collection.replaceOne(eq("_id", id), doc);
 
+    }
+
+    public Document convertCommentToDocument(Comment item){
+
+        Document d = new Document("comment_id", item.getId())
+                .append("author", item.getAuthor())
+                .append("body", item.getBody())
+                .append("score", item.getScore())
+                .append("timestamp", item.getTimestamp())
+                .append("controversiality", item.getControversiality());
+
+        if (item.getReplies() != null && !item.getReplies().isEmpty()){
+            List<Document> replies = Lists.newArrayList();
+            for (Comment reply : item.getReplies()){
+                replies.add(convertCommentToDocument(reply));
+            }
+            d.append("replies", replies);
+        }
+
+        return d;
     }
 }

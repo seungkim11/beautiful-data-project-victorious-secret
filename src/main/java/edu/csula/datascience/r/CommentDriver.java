@@ -25,8 +25,10 @@ public class CommentDriver {
         CommentCollector collector = new CommentCollector(db);
         while (source.hasNext()){
 
+            long rateCheckStart = System.currentTimeMillis();
             // this collection includes json comment blobs for 1000 submissions
 //            Collection<JSONObject> commentBlobsOfSubmissions = source.next();
+
             Map<ObjectId, JSONObject> commentBlobsOfSubmissionsMap = source.nextMap();
 
             // each submission has collections of comment objects
@@ -44,11 +46,27 @@ public class CommentDriver {
                 collector.save(id, cleanedComments);
             }
 
+            // sleep to avoid usage limit exception
+            sleep(rateCheckStart);
         }
-
 
         long end = System.currentTimeMillis();
         System.out.printf("stop time: %d %ntotal time: %d%n", end, end - start);
+        System.out.println("count: " + source.getCount());
 
     }
+
+    public static void sleep(long start){
+        long end = System.currentTimeMillis();
+        double timeElapsed = (end - start) / 1000.0;
+        double needToWait = 60.0 - timeElapsed;
+        System.out.println("*Need to sleep: " + (int) Math.ceil(needToWait) + " seconds");
+        try {
+            Thread.sleep((int) Math.ceil(needToWait) * 1000);
+        } catch (InterruptedException e) {
+            System.out.println("Thread sleep encountered exception");
+            e.printStackTrace();
+        }
+    }
+
 }
