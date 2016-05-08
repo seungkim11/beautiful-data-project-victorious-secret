@@ -36,9 +36,9 @@ public class RedditOAuthHttp {
         envmap.put("secret", System.getenv(SECRET));
         if (envmap.get("username").trim().isEmpty()) System.exit(1);
 
-        for (String s: envmap.keySet()){
-            System.out.println(s + ": " + envmap.get(s));
-        }
+//        for (String s: envmap.keySet()){
+//            System.out.println(s + ": " + envmap.get(s));
+//        }
 
 //        return envmap.get("username").isEmpty() ? false : true;
     }

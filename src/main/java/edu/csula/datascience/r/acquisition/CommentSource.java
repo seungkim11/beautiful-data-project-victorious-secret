@@ -57,11 +57,18 @@ public class CommentSource implements Source<JSONObject> {
         // for testing
     }
 
-    public CommentSource(MongoDatabase db) {
+    public CommentSource(MongoDatabase db, String count) {
         // connect to db collection
         collection = db.getCollection("posts_2016_04_23");
         collectionSize = collection.count();
-        count = 0;
+
+        if (count == null || count.isEmpty()){
+            this.count = 0;
+        }else{
+            this.count = Integer.parseInt(count);
+        }
+
+
 
         blockSize = 60;
         // connect reddit

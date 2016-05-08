@@ -21,7 +21,13 @@ public class CommentDriver {
 
         MyMongoDriver mongoDriver = new MyMongoDriver();
         MongoDatabase db = mongoDriver.getDb();
-        CommentSource source= new CommentSource(db);
+
+        CommentSource source= new CommentSource(db, "");
+
+        if (args.length > 0 && args[0] != null){
+            source = new CommentSource(db, args[0]);
+        }
+
         CommentCollector collector = new CommentCollector(db);
         while (source.hasNext()){
 

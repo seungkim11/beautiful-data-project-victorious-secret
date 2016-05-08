@@ -78,7 +78,11 @@ task submit(type: JavaExec) {
 task comments(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
   main = 'edu.csula.datascience.r.CommentDriver'
-//  args = ["posts_2016_04_23"]
+  if ( project.hasProperty("arguments")){
+    args Eval.me(arguments)
+  }
+//  if need to put parameters for count
+//  gradle comments -Parguments="['180']"
 }
 
 task wrapper(type: Wrapper) {
