@@ -193,7 +193,8 @@ public class CommentSource implements Source<JSONObject> {
 //            System.out.println(response.toString());
 
         } catch (IOException e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.out.println("access to this submission is unauthorized or unavailable");
             return "";
 
         } finally {
