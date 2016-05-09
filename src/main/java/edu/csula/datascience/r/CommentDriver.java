@@ -66,9 +66,13 @@ public class CommentDriver {
         long end = System.currentTimeMillis();
         double timeElapsed = (end - start) / 1000.0;
         double needToWait = 60.0 - timeElapsed;
+        int sleeptime = (needToWait < 0 ) ? 60 * 1000 : (int) Math.ceil(needToWait) * 1000;
         System.out.println("*Need to sleep: " + (int) Math.ceil(needToWait) + " seconds");
         try {
-            Thread.sleep((int) Math.ceil(needToWait) * 1000);
+            if (sleeptime < 0){
+                Thread.sleep(sleeptime);
+            }
+
         } catch (InterruptedException e) {
             System.out.println("Thread sleep encountered exception");
             e.printStackTrace();
