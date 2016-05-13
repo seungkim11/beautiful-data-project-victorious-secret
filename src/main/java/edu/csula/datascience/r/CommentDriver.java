@@ -55,7 +55,8 @@ public class CommentDriver {
             }
 
             // sleep to avoid usage limit exception
-            sleep(rateCheckStart);
+//            sleep(rateCheckStart);
+            TimeUnit.SECONDS.sleep(10);
         }
 
         long end = System.currentTimeMillis();
