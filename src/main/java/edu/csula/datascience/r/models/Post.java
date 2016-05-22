@@ -145,4 +145,23 @@ public class Post {
     public void setScore(int score) {
         this.score = score;
     }
+
+    @Override
+    public String toString() {
+        return "Post{" +
+                "id='" + id + '\'' +
+                ", author='" + author + '\'' +
+                ", title='" + title + '\'' +
+                ", selftext='" + selftext + '\'' +
+                ", subreddit='" + subreddit + '\'' +
+                ", url='" + url + '\'' +
+                ", domain='" + domain + '\'' +
+                ", is_self=" + is_self +
+                ", mediaType='" + mediaType + '\'' +
+                ", comments=" + comments +
+                ", isNSFW=" + isNSFW +
+                ", timestamp=" + timestamp +
+                ", score=" + score +
+                '}';
+    }
 }
