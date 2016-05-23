@@ -9,8 +9,7 @@ public class ElasticSearchMigrator {
 
     public static void main(String[] args){
         MongoToElasticSearch mes = new MongoToElasticSearch();
-
         mes.migrateToEs();
-
+        System.out.println("Migration finished");
     }
 }
