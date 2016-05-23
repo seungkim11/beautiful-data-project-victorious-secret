@@ -35,10 +35,10 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 public class MongoToElasticSearch {
     private final static String indexName = "reddit";
     private final static String typeName = "post";
-
+    private long count;
 
     public MongoToElasticSearch() {
-
+        count = 0;
     }
 
     public void migrateToEs() {
@@ -59,8 +59,7 @@ public class MongoToElasticSearch {
                     @Override
                     public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
 
-                        System.out.println("Added data: " + executionId);
-
+                        System.out.println("Added data: " + executionId + ", count: " + count);
                     }
 
                     @Override
@@ -89,7 +88,7 @@ public class MongoToElasticSearch {
         MongoCursor<Document> cursor = collection.find().iterator();
         while (cursor.hasNext()) {
             Post post = parsePost(cursor.next());
-
+            count++;
             bulkProcessor.add(new IndexRequest(indexName, typeName)
                     .source(gson.toJson(post))
             );
