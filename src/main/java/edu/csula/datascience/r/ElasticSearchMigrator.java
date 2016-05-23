@@ -11,6 +11,6 @@ public class ElasticSearchMigrator {
         MongoToElasticSearch mes = new MongoToElasticSearch();
 
         mes.migrateToEs();
-
+	System.out.println("Migration Finished");
     }
 }
