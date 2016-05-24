@@ -44,7 +44,7 @@ public class MongoToElasticSearch {
     public void migrateToEs() {
         Node node = nodeBuilder().settings(Settings.builder()
                 .put("cluster.name", "victorious-secret")
-                .put("path.home", "/home/seungkim11/elasticsearch-2.3.3")
+                .put("path.home", "elasticsearch-data")
         ).node();
 
         Client client = node.client();
