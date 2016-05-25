@@ -15,19 +15,17 @@ import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.node.Node;
 
 import java.util.List;
 
 import edu.csula.datascience.r.acquisition.CommentCollector;
 import edu.csula.datascience.r.models.Comment;
 import edu.csula.datascience.r.models.Post;
-
-import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 
 /**
  * Created by samskim on 5/22/16.
@@ -42,11 +40,11 @@ public class MongoToElasticSearch {
     }
 
     public void migrateToEs() {
-        Node node = nodeBuilder().settings(Settings.builder()
-                .put("cluster.name", "victorious-secret")
-        ).node();
 
-        Client client = node.client();
+        Settings settings = Settings.settingsBuilder()
+                .put("cluster.name", "victorious-secret").build();
+
+        Client client = TransportClient.builder().settings(settings).build();
 
         BulkProcessor bulkProcessor = BulkProcessor.builder(
                 client,
