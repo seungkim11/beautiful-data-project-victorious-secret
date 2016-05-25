@@ -17,10 +17,13 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import edu.csula.datascience.r.acquisition.CommentCollector;
@@ -44,7 +47,19 @@ public class MongoToElasticSearch {
         Settings settings = Settings.settingsBuilder()
                 .put("cluster.name", "victorious-secret").build();
 
-        Client client = TransportClient.builder().settings(settings).build();
+        Client client = null;
+        try {
+            client = TransportClient.builder().settings(settings).build()
+                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("es-data-01"), 9300));
+        } catch (UnknownHostException e) {
+            System.out.println("es-data-01 not found");
+            e.printStackTrace();
+        }
+
+//                new TransportClient(settings).
+//                addTransportAddress(new InetSocketTransportAddress("es-data-01", 9300));
+
+
 
         BulkProcessor bulkProcessor = BulkProcessor.builder(
                 client,
