@@ -1,30 +1,79 @@
-:compileJavaNote: Some input files use unchecked or unsafe operations.
-Note: Recompile with -Xlint:unchecked for details.
-
+:compileJava UP-TO-DATE
 :processResources UP-TO-DATE
-:classes
+:classes UP-TO-DATE
 :esSLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
 SLF4J: Defaulting to no-operation (NOP) logger implementation
 SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
-Exception in thread "main" java.lang.IllegalStateException: path.home is not configured
-	at org.elasticsearch.env.Environment.<init>(Environment.java:101)
-	at org.elasticsearch.node.internal.InternalSettingsPreparer.prepareEnvironment(InternalSettingsPreparer.java:81)
-	at org.elasticsearch.node.Node.<init>(Node.java:140)
-	at org.elasticsearch.node.NodeBuilder.build(NodeBuilder.java:143)
-	at org.elasticsearch.node.NodeBuilder.node(NodeBuilder.java:150)
-	at edu.csula.datascience.r.es.MongoToElasticSearch.migrateToEs(MongoToElasticSearch.java:47)
-	at edu.csula.datascience.r.ElasticSearchMigrator.main(ElasticSearchMigrator.java:13)
- FAILED
+May 25, 2016 10:31:37 AM com.mongodb.diagnostics.logging.JULLogger log
+INFO: Cluster created with settings {hosts=[127.0.0.1:27017], mode=SINGLE, requiredClusterType=UNKNOWN, serverSelectionTimeout='30000 ms', maxWaitQueueSize=500}
+May 25, 2016 10:31:37 AM com.mongodb.diagnostics.logging.JULLogger log
+INFO: No server chosen by ReadPreferenceServerSelector{readPreference=primary} from cluster description ClusterDescription{type=UNKNOWN, connectionMode=SINGLE, all=[ServerDescription{address=127.0.0.1:27017, type=UNKNOWN, state=CONNECTING}]}. Waiting for 30000 ms before timing out
+May 25, 2016 10:31:37 AM com.mongodb.diagnostics.logging.JULLogger log
+INFO: Opened connection [connectionId{localValue:1, serverValue:11}] to 127.0.0.1:27017
+May 25, 2016 10:31:37 AM com.mongodb.diagnostics.logging.JULLogger log
+INFO: Monitor thread successfully connected to server with description ServerDescription{address=127.0.0.1:27017, type=STANDALONE, state=CONNECTED, ok=true, version=ServerVersion{versionList=[3, 2, 6]}, minWireVersion=0, maxWireVersion=4, maxDocumentSize=16777216, roundTripTimeNanos=2161948}
+May 25, 2016 10:31:37 AM com.mongodb.diagnostics.logging.JULLogger log
+INFO: Opened connection [connectionId{localValue:2, serverValue:12}] to 127.0.0.1:27017
 
-FAILURE: Build failed with an exception.
-
-* What went wrong:
-Execution failed for task ':es'.
-> Process 'command '/usr/lib/jvm/java-8-oracle/bin/java'' finished with non-zero exit value 1
-
-* Try:
-Run with --stacktrace option to get the stack trace. Run with --info or --debug option to get more log output.
-
-BUILD FAILED
-
-Total time: 15.666 secs
+Added data: 1, count: 18600
+Added data: 2, count: 28600
+Added data: 3, count: 38600
+Added data: 4, count: 48600
+Added data: 5, count: 58600
+Added data: 6, count: 68600
+Added data: 7, count: 78600
+Added data: 8, count: 88600
+Added data: 9, count: 98600
+Added data: 10, count: 108600
+Added data: 11, count: 118600
+Added data: 12, count: 128600
+Added data: 13, count: 138600
+Added data: 14, count: 148600
+Added data: 15, count: 158600
+Added data: 16, count: 168600
+Added data: 17, count: 178600
+Added data: 18, count: 188600
+Added data: 19, count: 198600
+Added data: 20, count: 208600
+Added data: 21, count: 218600
+Added data: 22, count: 228600
+Added data: 23, count: 238600
+Added data: 24, count: 248600
+Added data: 25, count: 258600
+Added data: 26, count: 268600
+Added data: 27, count: 278600
+Added data: 28, count: 288600
+Added data: 29, count: 298600
+Added data: 30, count: 308600
+Added data: 31, count: 318600
+Added data: 32, count: 328600
+Added data: 33, count: 338600
+Added data: 34, count: 348600
+Added data: 35, count: 358600
+Added data: 36, count: 368600
+Added data: 37, count: 378600
+Added data: 38, count: 388600
+Added data: 39, count: 398600
+Added data: 40, count: 408600
+Added data: 41, count: 418600
+Added data: 42, count: 428600
+Added data: 43, count: 438600
+Added data: 44, count: 448600
+Added data: 45, count: 458600
+Added data: 46, count: 468600
+Added data: 47, count: 478600
+Added data: 48, count: 488600
+Added data: 49, count: 498600
+Added data: 50, count: 508600
+Added data: 51, count: 518600
+Added data: 52, count: 528600
+Added data: 53, count: 538600
+Added data: 54, count: 548600
+Added data: 55, count: 558600
+Added data: 56, count: 568600
+Added data: 57, count: 578600
+Added data: 58, count: 588600
+Added data: 59, count: 598600
+Added data: 60, count: 608600
+Added data: 61, count: 618600
+:es FAILED
