@@ -15,8 +15,6 @@ public class MigrationDriver {
             migrator = new MongoToElasticSearch(args[0]);
         }
 
-        System.out.println(migrator.getCount());
-
         migrator.migrateToEs();
         System.out.println("Migration finished");
     }
