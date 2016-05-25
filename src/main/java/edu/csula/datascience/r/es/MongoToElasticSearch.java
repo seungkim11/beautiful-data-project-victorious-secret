@@ -50,7 +50,7 @@ public class MongoToElasticSearch {
         Client client = null;
         try {
             client = TransportClient.builder().settings(settings).build()
-                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("es-data-01"), 9300));
+                    .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("es-master-01"), 9300));
         } catch (UnknownHostException e) {
             System.out.println("es-data-01 not found");
             e.printStackTrace();
