@@ -36,13 +36,20 @@ import edu.csula.datascience.r.models.Post;
 public class MongoToElasticSearch {
     private final static String indexName = "reddit";
     private final static String typeName = "post";
-    private long count;
+    private int count;
 
-    public MongoToElasticSearch() {
-        count = 0;
+    public MongoToElasticSearch(String count) {
+
+        if (count == null || count.isEmpty()){
+            this.count = 0;
+        }else{
+            this.count = Integer.parseInt(count);
+        }
     }
 
     public void migrateToEs() {
+
+
 
         Settings settings = Settings.settingsBuilder()
                 .put("cluster.name", "victorious-secret").build();
@@ -98,7 +105,8 @@ public class MongoToElasticSearch {
         MongoDatabase db = mongoClient.getDatabase("reddit");
         MongoCollection collection = db.getCollection("posts_2016_04_23");
 
-        MongoCursor<Document> cursor = collection.find().iterator();
+        MongoCursor<Document> cursor = collection.find().skip(count).iterator();
+
         while (cursor.hasNext()) {
             Post post = parsePost(cursor.next());
             count++;
@@ -171,6 +179,10 @@ public class MongoToElasticSearch {
 
         return c;
 
+    }
+
+    public int getCount(){
+        return count;
     }
 
 

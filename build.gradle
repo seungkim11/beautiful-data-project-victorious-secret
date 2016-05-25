@@ -91,7 +91,12 @@ task wrapper(type: Wrapper) {
 
 task es(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
-  main = 'edu.csula.datascience.r.ElasticSearchMigrator'
+  main = 'edu.csula.datascience.r.MigrationDriver'
+  if ( project.hasProperty("arguments")){
+    args Eval.me(arguments)
+  }
+  //  if need to put parameters for count
+//  gradle es -Parguments="['610000']"
 }
 
 test {
