@@ -19,11 +19,10 @@ public class Post {
     private boolean isNSFW;
     private long timestamp;
     private int score;
+    private double title_sentiment;
+    private int comments_count;
 
-    public Post(){
-
-    }
-
+    // for old constructors
     public Post(String id, String author, String title, String selftext, String subreddit, String url,
                 String domain, boolean is_self, String mediaType, List<Comment> comments,
                 boolean isNSFW, long timestamp, int score) {
@@ -41,6 +40,28 @@ public class Post {
         this.timestamp = timestamp;
         this.score = score;
     }
+
+
+    public Post(String id, String author, String title, String selftext, String subreddit, String url,
+                String domain, boolean is_self, String mediaType, List<Comment> comments,
+                boolean isNSFW, long timestamp, int score, double title_sentiment, int comments_count) {
+        this.id = id;
+        this.author = author;
+        this.title = title;
+        this.selftext = selftext;
+        this.subreddit = subreddit;
+        this.url = url;
+        this.domain = domain;
+        this.is_self = is_self;
+        this.mediaType = mediaType;
+        this.comments = comments;
+        this.isNSFW = isNSFW;
+        this.timestamp = timestamp;
+        this.score = score;
+        this.title_sentiment = title_sentiment;
+        this.comments_count = comments_count;
+    }
+
 
     public String getId() {
         return id;
@@ -144,6 +165,22 @@ public class Post {
 
     public void setScore(int score) {
         this.score = score;
+    }
+
+    public double getTitle_sentiment() {
+        return title_sentiment;
+    }
+
+    public void setTitle_sentiment(double title_sentiment) {
+        this.title_sentiment = title_sentiment;
+    }
+
+    public int getComments_count() {
+        return comments_count;
+    }
+
+    public void setComments_count(int comments_count) {
+        this.comments_count = comments_count;
     }
 
     @Override

@@ -49,8 +49,6 @@ public class MongoToElasticSearch {
 
     public void migrateToEs() {
 
-
-
         Settings settings = Settings.settingsBuilder()
                 .put("cluster.name", "victorious-secret").build();
 
@@ -58,6 +56,7 @@ public class MongoToElasticSearch {
         try {
             client = TransportClient.builder().settings(settings).build()
                     .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("es-master-01"), 9300));
+//            .addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName("localhost"), 9300));
         } catch (UnknownHostException e) {
             System.out.println("es-data-01 not found");
             e.printStackTrace();
@@ -103,7 +102,7 @@ public class MongoToElasticSearch {
 
         MongoClient mongoClient = new MongoClient();
         MongoDatabase db = mongoClient.getDatabase("reddit");
-        MongoCollection collection = db.getCollection("posts_2016_04_23");
+        MongoCollection collection = db.getCollection("posts_with_sentiment");
 
         MongoCursor<Document> cursor = collection.find().skip(count).iterator();
 
@@ -131,12 +130,13 @@ public class MongoToElasticSearch {
         boolean isNSFW = (boolean) doc.get("isNSFW");
         long timestamp = (long) doc.get("timestamp");
         int score = (int) doc.get("score");
+        double title_sentiment = (double) doc.get("title_sentiment");
+        int comments_count = (int) doc.get("comments_count");
 
         List<Document> commentDocs = (List<Document>) doc.get("comments");
         List<Comment> comments = null;
         if (commentDocs != null && commentDocs.size() > 0) {
             comments = Lists.newArrayList();
-            ;
 
             for (Document d : commentDocs) {
                 comments.add(parseComment(d));
@@ -144,7 +144,7 @@ public class MongoToElasticSearch {
         }
 
         return new Post(id, author, title, selftext, subreddit, url, domain, is_self,
-                mediaType, comments, isNSFW, timestamp, score);
+                mediaType, comments, isNSFW, timestamp, score, title_sentiment, comments_count);
     }
 
 
@@ -158,6 +158,8 @@ public class MongoToElasticSearch {
         int score = (int) comment.get("score");
         long timestamp = (long) comment.get("timestamp");
         int controversiality = (int) comment.get("controversiality");
+        double sentiment = (double) comment.get("sentiment");
+
         List<Document> replyDocs = (List<Document>) comment.get("replies");
 
         List<Comment> replies = null;
@@ -171,7 +173,7 @@ public class MongoToElasticSearch {
             }
         }
 
-        c = new Comment(id, author, replies, body, score, timestamp, controversiality);
+        c = new Comment(id, author, replies, body, score, timestamp, controversiality, sentiment);
 
 //        System.out.println("id: " + id + ", author: " + ", body: " + body +
 //                ", score: " + score + ", controversiality: " + controversiality +

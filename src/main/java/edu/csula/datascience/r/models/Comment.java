@@ -13,6 +13,7 @@ public class Comment {
     private int score;
     private long timestamp;
     private int controversiality;
+    private double sentiment;
 
     public Comment(){
 
@@ -27,6 +28,18 @@ public class Comment {
         this.score = score;
         this.timestamp = timestamp;
         this.controversiality = controversiality;
+    }
+
+    public Comment(String id, String author, Collection<Comment> replies, String body,
+                   int score, long timestamp, int controversiality, double sentiment) {
+        this.id = id;
+        this.author = author;
+        this.replies = replies;
+        this.body = body;
+        this.score = score;
+        this.timestamp = timestamp;
+        this.controversiality = controversiality;
+        this.sentiment = sentiment;
     }
 
     public String getId() {
@@ -83,6 +96,14 @@ public class Comment {
 
     public void setControversiality(int controversiality) {
         this.controversiality = controversiality;
+    }
+
+    public double getSentiment() {
+        return sentiment;
+    }
+
+    public void setSentiment(double sentiment) {
+        this.sentiment = sentiment;
     }
 
     @Override
