@@ -96,7 +96,7 @@ task es(type: JavaExec) {
     args Eval.me(arguments)
   }
   //  if need to put parameters for count
-//  gradle es -Parguments="['610000']"
+//  gradle es -Parguments="['618600']" > esoutput2.txt 2>&1 &
 }
 
 test {
