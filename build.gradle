@@ -5,6 +5,8 @@ plugins {
   id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
+apply plugin: 'idea'
+
 group 'csula'
 version '1.0-SNAPSHOT'
 
@@ -14,11 +16,16 @@ sourceCompatibility = 1.8
 
 repositories {
   mavenCentral()
+  jcenter()
 }
 
 jar {
+  from {
+    configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+  }
   manifest {
-    attributes 'Main-Class': 'edu.csula.datascience.examples.Hello'
+    //attributes 'Main-Class': 'edu.csula.datascience.examples.Hello'
+    attributes 'Main-Class': 'edu.csula.datascience.r.SubmissionDriver'
   }
 }
 
@@ -33,6 +40,13 @@ dependencies {
   compile 'com.mashape.unirest:unirest-java:1.4.9'
   compile 'org.mongodb:mongodb-driver:3.2.2'
   compile 'org.twitter4j:twitter4j-core:4.0.4'
+  compile 'org.apache.httpcomponents:httpclient:4.5.2'
+  compile 'com.google.http-client:google-http-client:1.21.0'
+  compile 'com.google.api-client:google-api-client-appengine:1.21.0'
+  compile 'com.google.appengine:appengine-api-1.0-sdk:1.9.34'
+  compile 'net.dean.jraw:JRAW:0.8.0'
+  compile 'org.apache.commons:commons-csv:1.1'
+  compile 'org.elasticsearch:elasticsearch:2.3.3'
 
   testCompile group: 'junit', name: 'junit', version: '4.11'
 }
@@ -55,6 +69,36 @@ task acquireTwitter(type: JavaExec) {
   main = 'edu.csula.datascience.acquisition.TwitterCollectorApp'
 }
 
+task submit(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'edu.csula.datascience.r.SubmissionDriver'
+  args = ["posts_2016_04_23"]
+}
+
+task comments(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'edu.csula.datascience.r.CommentDriver'
+  if ( project.hasProperty("arguments")){
+    args Eval.me(arguments)
+  }
+//  if need to put parameters for count
+//  gradle comments -Parguments="['180']"
+}
+
 task wrapper(type: Wrapper) {
   gradleVersion = '2.0'
+}
+
+task es(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+  main = 'edu.csula.datascience.r.MigrationDriver'
+  if ( project.hasProperty("arguments")){
+    args Eval.me(arguments)
+  }
+  //  if need to put parameters for count
+//  gradle es -Parguments="['618600']" > esoutput2.txt 2>&1 &
+}
+
+test {
+  classpath = sourceSets.test.runtimeClasspath + files("${projectDir}/test/")
 }

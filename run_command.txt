@@ -1,0 +1,1 @@
+gradle comments -Parguments="['418120']" > outputfile2.txt 2>&1 &
