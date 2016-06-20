@@ -1,16 +1,12 @@
-# beautiful-data-project-victorious-secret
-
 # Data Science Project - Spring 2016
 
 [![Build Status](https://travis-ci.org/csula/datascience-spring-2016.svg?branch=master)](https://travis-ci.org/csula/datascience-spring-2016)
 
-**Team Members:**
+**Team Members:**  
 Seung Kim | Tony Guardado
 
+[Machine Learning Implementations][1]
 
-In this class, we will be learning how to clean up messy data, uncover patterns and insights to conclude or to make predictions. Moreover, we will be communicating our findings with beautiful visualization!
-
-You are welcome to join the class [gitter chat room](https://gitter.im/csula/datascience-spring-2016).  In the interest of being efficient, we encourage everyone to ask questions publicly so that common questions can be answered once.
 
 In this quarter, we will publish all course materials on the Github and on [Gitbook][1].  This implies you **do not** need a textbook for the class as all required materials will be provided.
 
@@ -25,4 +21,4 @@ In this quarter, we will publish all course materials on the Github and on [Gitb
   * [Schedule](syllabus.md#course-schedule)
 * [Gitbook][1]
 
-[1]: https://www.gitbook.com/book/rcliao/datascience-spring-2016/
+[1]: https://github.com/seungkim11/beautiful-data-project-victorious-secret/blob/master/python/Reddit_Analysis.ipynb
