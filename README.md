@@ -19,7 +19,7 @@ Seung Kim | Tony Guardado
 
 ## Quick links
 * [Visual Analysis Video][1]
-* [Analysis Presentation][2]
+* [Presentation Slides][2]
 * [Machine Learning Implementations][3]
 
 [1]: https://youtu.be/n615gJwOKaw
