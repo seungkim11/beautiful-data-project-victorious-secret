@@ -12,7 +12,7 @@ Seung Kim | Tony Guardado
 * Conducted machine learning classification algorithm to predict post popularity
 
 ### Tools Used:
-* Java, Python
+* Java, Python, MongoDB
 * Elastic Search Kibana
 * [TextBlob][4] for sentiment Analysis
 * Pandas, Scipy, Scikit-learn libraries for machine learning
